@@ -11,5 +11,6 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByAccountId(Long accountId) {
+        return null;
     }
 }
