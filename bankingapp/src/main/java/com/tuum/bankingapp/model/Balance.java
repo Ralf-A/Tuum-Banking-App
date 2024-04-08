@@ -3,15 +3,13 @@ package com.tuum.bankingapp.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.List;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account {
-    private Long accountId;
-    private Long customerId;
-    private String country;
-    private List<Balance> balances;
+public class Balance {
+    private BigDecimal availableAmount;
+    private String currency;
 }
 
