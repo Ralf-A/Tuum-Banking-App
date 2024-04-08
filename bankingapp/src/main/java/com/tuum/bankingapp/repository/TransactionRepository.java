@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
-public interface TransactionMapper {
+public interface TransactionRepository {
     // MyBatis annotations to define the SQL query for finding transactions by account ID
     @Select("SELECT * FROM transactions WHERE account_id = #{accountId}")
     List<Transaction> findTransactionsByAccountId(@Param("accountId") Long accountId);
