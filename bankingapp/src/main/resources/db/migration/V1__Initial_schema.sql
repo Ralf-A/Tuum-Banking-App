@@ -5,19 +5,27 @@ CREATE TABLE IF NOT EXISTS accounts (
                                         country VARCHAR(3) NOT NULL
 );
 
-
 -- Create schema for Balances
 CREATE TABLE IF NOT EXISTS balances (
                                         balance_id SERIAL PRIMARY KEY,
-                                        account_id BIGINT NOT NULL,
                                         available_amount NUMERIC(19, 4) NOT NULL,
-                                        currency VARCHAR(3) NOT NULL CHECK (currency IN ('EUR', 'SEK', 'GBP', 'USD')),
-                                        CONSTRAINT fk_account
-                                            FOREIGN KEY(account_id)
-                                                REFERENCES accounts(account_id)
-                                                ON DELETE CASCADE
+                                        currency VARCHAR(3) NOT NULL CHECK (currency IN ('EUR', 'SEK', 'GBP', 'USD'))
 );
 
+-- Create schema for Account_Balances
+CREATE TABLE IF NOT EXISTS account_balances (
+                                                account_balance_id SERIAL PRIMARY KEY,
+                                                account_id BIGINT NOT NULL,
+                                                balance_id BIGINT NOT NULL,
+                                                CONSTRAINT fk_account
+                                                    FOREIGN KEY(account_id)
+                                                        REFERENCES accounts(account_id)
+                                                        ON DELETE CASCADE,
+                                                CONSTRAINT fk_balance
+                                                    FOREIGN KEY(balance_id)
+                                                        REFERENCES balances(balance_id)
+                                                        ON DELETE CASCADE
+);
 
 -- Create schema for Transactions
 CREATE TABLE IF NOT EXISTS transactions (

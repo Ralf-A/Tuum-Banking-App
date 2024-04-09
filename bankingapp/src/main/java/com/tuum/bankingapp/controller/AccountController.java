@@ -7,22 +7,26 @@ import com.tuum.bankingapp.service.AccountService;
 import com.tuum.bankingapp.model.Account;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
 
     @Autowired
     private AccountService accountService;
 
-    @PostMapping("/accounts")
+    @PostMapping("/create")
     public ResponseEntity<Account> createAccount(@RequestBody Account account) {
         // Logic to create an account
         return ResponseEntity.ok(accountService.createAccount(account));
     }
 
-    @GetMapping("/accounts/{accountId}")
+    @GetMapping("/{accountId}")
     public ResponseEntity<Account> getAccount(@PathVariable Long accountId) {
-        // Logic to get an account
-        return ResponseEntity.ok(accountService.getAccountById(accountId));
+        Account account = accountService.getAccountById(accountId);
+        if (account != null) {
+            return ResponseEntity.ok(account);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
 

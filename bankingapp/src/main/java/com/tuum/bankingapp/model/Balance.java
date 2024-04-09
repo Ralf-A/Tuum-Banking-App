@@ -12,6 +12,5 @@ import java.math.BigDecimal;
 public class Balance {
     private Long accountId;
     private BigDecimal availableAmount;
-    private String currency;
 }
 

@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -44,52 +46,51 @@ public class AccountService {
             log.info("Account not found with id: {}", accountId);
             throw new AccountNotFoundException("Account not found with id: " + accountId);
         }
-        account.setBalances(balanceRepository.findBalancesByAccountId(accountId));
+        account.setBalances(getBalancesForAccount(accountId));
         log.info("Account found: {}", account);
         return account;
     }
 
-    public Account createAccount(Account account) throws InvalidCurrencyException, InvalidCustomerException {
+    private Map<String, Balance> getBalancesForAccount(Long accountId) {
+        return (Map<String, Balance>) balanceRepository.findBalancesByAccountId(accountId);
+    }
+
+    public Account createAccount(Account account) {
         log.info("Creating account: {}", account);
-        if (account.getBalances() == null) {
-            account.setBalances(new ArrayList<>());
+        validateAccount(account);
+
+        accountRepository.insertAccount(account);
+
+        // Insert balances
+        List<Balance> balances = new ArrayList<>(account.getBalances().values());
+        for (Balance balance : balances) {
+            balance.setAccountId(account.getAccountId());
+            balanceRepository.insertBalance(balance);
         }
-        if (!accountCreationValidation.isValidCurrency(account.getBalances().stream().map(Balance::getCurrency).collect(Collectors.toList()))) {
-            log.info("Invalid currency provided.");
-            throw new InvalidCurrencyException("Invalid currency provided.");
-        }
+
+        log.info("Account created: {}", account);
+        return account;
+    }
+
+    private void validateAccount(Account account) {
+        // Validate currencies
+//        if (!accountCreationValidation.isValidCurrency(currencies)) {
+//            log.info("Invalid currency provided.");
+//            throw new InvalidCurrencyException("Invalid currency provided.");
+//        }
+
+        // Validate customer ID
         if (!accountCreationValidation.isValidCustomerId(account.getCustomerId())) {
             log.info("Invalid customer ID provided.");
             throw new InvalidCustomerException("Invalid customer ID provided.");
         }
+
+        // Validate country
         if (!accountCreationValidation.isValidCountry(account.getCountry())) {
             log.info("Invalid country provided.");
             throw new InvalidCountryException("Invalid country provided.");
         }
-
-        accountRepository.insertAccount(account);
-
-        List<Balance> balances = new ArrayList<>();
-
-        // Create a balance with zero amount for each currency provided
-        // private List<Balance> balances in Account.java
-        for (Balance currency : account.getBalances()) {
-            log.info("Creating balance for currency: {}", currency);
-            Balance balance = new Balance();
-            balance.setAccountId(account.getAccountId());
-            balance.setAvailableAmount(BigDecimal.ZERO);
-            balance.setCurrency(String.valueOf(currency));
-            balanceRepository.insertBalance(balance);
-            balances.add(balance);
-        }
-
-        // Set the balances to the account
-        account.setBalances(balances);
-
-        // Publish the account creation event
-        messagePublisher.publishAccountEvent(account);
-        log.info("Account created: {}", account);
-        return account;
     }
+
 }
 

@@ -13,11 +13,11 @@ public class AccountCreationValidation {
     @Autowired
     private AccountRepository accountRepository;
 
-
     public boolean isValidCurrency(List<String> currencies) {
         List<String> allowedCurrencies = Arrays.asList("EUR", "SEK", "GBP", "USD");
         return currencies.stream().allMatch(allowedCurrencies::contains);
     }
+
     public boolean isValidCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {
             return false;
@@ -28,7 +28,6 @@ public class AccountCreationValidation {
 
     public boolean isValidCountry(String country) {
         return country != null && !country.trim().isEmpty();
-        // For more robust validation, check against a list of ISO country codes
     }
 
 }
