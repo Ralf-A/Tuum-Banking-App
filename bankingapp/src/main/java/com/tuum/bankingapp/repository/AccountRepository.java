@@ -1,9 +1,12 @@
 package com.tuum.bankingapp.repository;
 
 import com.tuum.bankingapp.model.Account;
+import jdk.jfr.Registered;
 import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
 
 @Mapper
+@Repository
 public interface AccountRepository {
     @Select("SELECT * FROM accounts WHERE customer_id = #{customerId}")
     Account findAccountsByCustomerId(@Param("customerId") Long customerId);

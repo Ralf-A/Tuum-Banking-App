@@ -34,8 +34,4 @@ CREATE TABLE IF NOT EXISTS transactions (
                                                     ON DELETE CASCADE
 );
 
--- Indexes for faster search
-CREATE INDEX idx_customer ON accounts(customer_id);
-CREATE INDEX idx_account_balance ON balances(account_id);
-CREATE INDEX idx_account_transaction ON transactions(account_id);
 

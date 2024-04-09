@@ -1,10 +1,12 @@
 package com.tuum.bankingapp.repository;
 import com.tuum.bankingapp.model.Balance;
 import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Mapper
+@Repository
 public interface BalanceRepository {
 
     @Select("SELECT * FROM balances WHERE account_id = #{accountId}")
