@@ -22,14 +22,14 @@ public class AccountCreationValidation {
 
     public boolean isValidCurrency(List<String> currencies) {
         if (currencies == null || currencies.isEmpty()) {
-            log.info("Currency is null or empty: {}", currencies);
+            log.error("Currency is null or empty: {}", currencies);
             return false;
         }
         List<String> invalidCurrencies = currencies.stream()
                 .filter(currency -> !ALLOWED_CURRENCIES.contains(currency))
                 .collect(Collectors.toList());
         if (!invalidCurrencies.isEmpty()) {
-            log.info("Invalid currencies: {}", invalidCurrencies);
+            log.error("Invalid currencies: {}", invalidCurrencies);
             return false;
         }
         return true;
@@ -37,12 +37,12 @@ public class AccountCreationValidation {
 
     public boolean isValidCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {
-            log.info("Customer ID is null or invalid: {}", customerId);
+            log.error("Customer ID is null or invalid: {}", customerId);
             return false;
         }
         List<Account> accounts = accountRepository.findAccountsByCustomerId(customerId);
         if (!accounts.isEmpty()) {
-            log.info("Customer ID already exists: {}", customerId);
+            log.error("Customer ID already exists: {}", customerId);
             return false;
         }
         return true;
