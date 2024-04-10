@@ -10,9 +10,10 @@ import java.util.List;
 @Repository
 public interface AccountBalanceRepository {
 
-    // Method to find balance_ids by account_id
-    @Select("SELECT * FROM account_balances WHERE account_id = #{accountId}")
-    List<AccountBalance> findAccountBalancesByAccountId(@Param("accountId") Long accountId);
+
+    // Method to find balance_ids by account_d
+    @Select("SELECT balance_id FROM account_balances WHERE account_id = #{accountId}")
+    List<Long> findBalanceIdsByAccountId(@Param("accountId") Long accountId);
 
     // Method to insert a new account_balance record
     @Insert("INSERT INTO account_balances (account_id, balance_id) VALUES (#{accountId}, #{balanceId})")

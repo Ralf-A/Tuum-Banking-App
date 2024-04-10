@@ -50,7 +50,6 @@ public class AccountService {
         }
         // Fetch balances for the account
         List<Balance> balances = getBalancesForAccount(accountId);
-        // Set the balances to the account object
         account.setBalances(balances);
         log.info("Account found: {}", account);
         return account;
@@ -58,15 +57,15 @@ public class AccountService {
 
 
     private List<Balance> getBalancesForAccount(Long accountId) {
-        // Find balances for the account using the account_balances middle-table
         log.info("Finding balances for account: {}", accountId);
-        List<AccountBalance> accountBalances = accountBalanceRepository.findAccountBalancesByAccountId(accountId);
-        log.info("Found account balance records: {}", accountBalances);
-        return accountBalances.stream()
-                .map(accountBalance -> balanceRepository.findBalanceById(accountBalance.getBalanceId()))
+        List<Long> balanceIds = accountBalanceRepository.findBalanceIdsByAccountId(accountId);
+        log.info("Found balance IDs: {}", balanceIds);
+        return balanceIds.stream()
+                .map(balanceRepository::findBalanceById)
                 .collect(Collectors.toList());
-
     }
+
+
 
     @Transactional
     public Account createAccount(Account account) {

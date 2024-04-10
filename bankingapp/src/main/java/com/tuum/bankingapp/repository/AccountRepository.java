@@ -10,22 +10,14 @@ import java.util.List;
 @Mapper
 @Repository
 public interface AccountRepository {
-
-    // Method to find accounts by customer_id
-    @Select("SELECT * FROM accounts WHERE customer_id = #{customerId}")
-    @Results({
-            @Result(property = "accountId", column = "account_id"),
-            @Result(property = "balances", javaType = List.class, column = "account_id",
-                    many = @Many(select = "findBalancesByAccountId"))
-    })
-    List<Account> findAccountsByCustomerId(@Param("customerId") Long customerId);
-
     // Method to find account by account_id
     @Select("SELECT * FROM accounts WHERE account_id = #{accountId}")
     @Results({
             @Result(property = "accountId", column = "account_id"),
+            @Result(property = "customerId", column = "customer_id"),
+            @Result(property = "country", column = "country"),
             @Result(property = "balances", javaType = List.class, column = "account_id",
-                    many = @Many(select = "findBalancesByAccountId"))
+                    many = @Many(select = "com.tuum.bankingapp.repository.BalanceRepository.findBalancesByAccountId"))
     })
     Account findAccountById(@Param("accountId") Long accountId);
 

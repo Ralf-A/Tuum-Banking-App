@@ -21,14 +21,17 @@ public class AccountCreationValidation {
                 .allMatch(currency -> ALLOWED_CURRENCIES.contains(currency));
     }
 
-    public boolean isValidCustomerId(Long customerId) {
-        if (customerId == null || customerId <= 0) {
+    public boolean isValidCustomerId(Long accountId) {
+        if (accountId == null || accountId <= 0) {
             return false;
         }
-        // Assuming that the method findAccountsByCustomerId should return a list of accounts
-        List<Account> existingAccounts = accountRepository.findAccountsByCustomerId(customerId);
-        return existingAccounts.isEmpty(); // Customer ID is valid if no existing accounts are found
+        Account existingAccounts = accountRepository.findAccountById(accountId);
+        if (existingAccounts == null) {
+            return false;
+        }
+        return true;
     }
+
 
     public boolean isValidCountry(String country) {
         // You can enhance this by checking against a list of valid countries if needed
