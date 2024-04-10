@@ -6,6 +6,7 @@ import com.tuum.bankingapp.exception.InvalidCurrencyException;
 import com.tuum.bankingapp.exception.InvalidCustomerException;
 import com.tuum.bankingapp.messaging.MessagePublisher;
 import com.tuum.bankingapp.model.Account;
+import com.tuum.bankingapp.model.AccountBalance;
 import com.tuum.bankingapp.model.Balance;
 import com.tuum.bankingapp.repository.AccountBalanceRepository;
 import com.tuum.bankingapp.repository.AccountRepository;
@@ -41,43 +42,57 @@ public class AccountService {
     private AccountCreationValidation accountCreationValidation;
 
     public Account getAccountById(Long accountId) {
-        // Find account by account ID
         log.info("Finding account by ID: {}", accountId);
-        if (accountId == null || accountRepository.findAccountById(accountId) == null){
+        Account account = accountRepository.findAccountById(accountId);
+        if (accountId == null || account == null) {
             log.info("Account not found");
             throw new AccountNotFoundException("Account not found");
         }
-        log.info("Account found: {}", accountId);
-        return accountRepository.findAccountById(accountId);
+        // Fetch balances for the account
+        List<Balance> balances = getBalancesForAccount(accountId);
+        // Set the balances to the account object
+        account.setBalances(balances);
+        log.info("Account found: {}", account);
+        return account;
     }
 
+
     private List<Balance> getBalancesForAccount(Long accountId) {
-        // Find balance IDs by account ID from the account_balances join table
+        // Find balances for the account using the account_balances middle-table
         log.info("Finding balances for account: {}", accountId);
-        try {
-            List<Long> balanceIds = accountBalanceRepository.findBalanceIdsByAccountId(accountId);
-            log.info("Found balance IDs: {}", balanceIds);
-            return balanceIds.stream()
-                    .map(balanceRepository::findBalanceById)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            log.error("Error occurred while fetching balances for account: {}", accountId);
-            throw new AccountNotFoundException("Error occurred while fetching balances for account");
-        }
+        List<AccountBalance> accountBalances = accountBalanceRepository.findAccountBalancesByAccountId(accountId);
+        log.info("Found account balance records: {}", accountBalances);
+        return accountBalances.stream()
+                .map(accountBalance -> balanceRepository.findBalanceById(accountBalance.getBalanceId()))
+                .collect(Collectors.toList());
+
     }
 
     @Transactional
     public Account createAccount(Account account) {
-        // Validate account, insert account and balances, and publish account creation event
+        // Validate account
+        log.info("Creating account, validating account details for account");
         validateAccount(account);
+
+        // Insert account into the database
         accountRepository.insertAccount(account);
+        Long accountId = account.getAccountId(); // Ensure this is being retrieved after insertion
+
+        // Insert balances and link them to the account using the account_balances middle-table
         for (Balance balance : account.getBalances()) {
+            // Insert balance into the database
             balanceRepository.insertBalance(balance);
-            accountBalanceRepository.insertAccountBalance(account.getAccountId(), balance.getBalanceId());
+            Long balanceId = balance.getBalanceId(); // Ensure this is retrieved after insertion
+
+            // Insert record into the account_balances middle-table
+            accountBalanceRepository.insertAccountBalance(accountId, balanceId);
         }
+        // Publish account creation event
         messagePublisher.publishAccountEvent(account);
+        log.info("Account created successfully: {}", accountId);
         return account;
     }
+
 
     private void validateAccount(Account account) {
         // Validate country

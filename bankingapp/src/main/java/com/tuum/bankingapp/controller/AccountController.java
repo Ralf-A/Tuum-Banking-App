@@ -1,6 +1,8 @@
 package com.tuum.bankingapp.controller;
 
+import com.tuum.bankingapp.exception.AccountNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.tuum.bankingapp.service.AccountService;
@@ -28,15 +30,9 @@ public class AccountController {
     public ResponseEntity<?> getAccount(@PathVariable Long accountId) {
         try {
             Account account = accountService.getAccountById(accountId);
-            if (account != null) {
-                return ResponseEntity.ok(account);
-            } else {
-                // Handle the case where the account is not found
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            // Handle any other exceptions
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.ok(account);
+        } catch (AccountNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }
