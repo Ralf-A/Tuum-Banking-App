@@ -13,8 +13,6 @@ import java.util.List;
 public class TransactionValidation {
     Logger log = org.slf4j.LoggerFactory.getLogger(TransactionValidation.class);
     @Autowired
-    private TransactionRepository transactionRepository;
-    @Autowired
     private AccountRepository accountRepository;
 
     public boolean isAccountIdValid(Long accountId) {

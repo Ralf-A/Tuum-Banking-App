@@ -1,4 +1,6 @@
 package com.tuum.bankingapp.controller;
+import com.tuum.bankingapp.dto.CreateTransactionRequest;
+import com.tuum.bankingapp.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,14 +18,24 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @PostMapping("/transactions")
-    public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction transaction) {
-        // Logic to create a transaction
-        return ResponseEntity.ok(transactionService.createTransaction(transaction));
+    public ResponseEntity<?> createTransaction(@RequestBody CreateTransactionRequest request) {
+        try{
+            Transaction createdTransaction = transactionService.createTransaction(request.getAccountId(), request.getAmount(), request.getCurrency(), request.getDirection(), request.getDescription());
+            return ResponseEntity.ok(createdTransaction);
+        } catch (AccountNotFoundException | InvalidCurrencyException | InvalidAmountException | InvalidDescriptionException | InvalidDirectionException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("An unexpected error occurred");
+        }
     }
 
     @GetMapping("/transactions/{accountId}")
-    public ResponseEntity<List<Transaction>> getTransactions(@PathVariable Long accountId) {
-        // Logic to get transactions for an account
-        return ResponseEntity.ok(transactionService.getTransactionsByAccountId(accountId));
+    public ResponseEntity<?> getTransactions(@PathVariable Long accountId) {
+        try{
+            List<Transaction> transactions = transactionService.getTransactionsByAccountId(accountId);
+            return ResponseEntity.ok(transactions);
+        } catch (AccountNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

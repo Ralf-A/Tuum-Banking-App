@@ -15,7 +15,7 @@ import com.tuum.bankingapp.model.Account;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/api/v1/transactions")
 public class AccountController {
 
     @Autowired
@@ -43,6 +43,8 @@ public class AccountController {
             return ResponseEntity.ok(account);
         } catch (AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("An unexpected error occurred");
         }
     }
 }
