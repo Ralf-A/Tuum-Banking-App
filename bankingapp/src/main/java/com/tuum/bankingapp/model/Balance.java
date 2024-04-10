@@ -10,7 +10,8 @@ import java.math.BigDecimal;
 @Setter
 @AllArgsConstructor
 public class Balance {
-    private Long accountId;
+    private Long balanceId;
+    private String currency;
     private BigDecimal availableAmount;
 }
 

@@ -14,18 +14,29 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/create")
-    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
-        // Logic to create an account
-        return ResponseEntity.ok(accountService.createAccount(account));
+    public ResponseEntity<?> createAccount(@RequestBody Account account) {
+        try {
+            Account createdAccount = accountService.createAccount(account);
+            return ResponseEntity.ok(createdAccount);
+        } catch (IllegalArgumentException e) {
+            // Handle the case where an invalid currency is provided
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<Account> getAccount(@PathVariable Long accountId) {
-        Account account = accountService.getAccountById(accountId);
-        if (account != null) {
-            return ResponseEntity.ok(account);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getAccount(@PathVariable Long accountId) {
+        try {
+            Account account = accountService.getAccountById(accountId);
+            if (account != null) {
+                return ResponseEntity.ok(account);
+            } else {
+                // Handle the case where the account is not found
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            // Handle any other exceptions
+            return ResponseEntity.internalServerError().build();
         }
     }
 }
