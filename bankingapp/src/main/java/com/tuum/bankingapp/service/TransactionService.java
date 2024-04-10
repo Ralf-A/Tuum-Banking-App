@@ -1,16 +1,12 @@
 package com.tuum.bankingapp.service;
 
-import com.tuum.bankingapp.exception.AccountNotFoundException;
-import com.tuum.bankingapp.exception.GlobalExceptionHandler;
-import com.tuum.bankingapp.exception.InsufficientFundsException;
-import com.tuum.bankingapp.exception.InvalidAccountException;
+import com.tuum.bankingapp.exception.*;
 import com.tuum.bankingapp.model.Balance;
 import com.tuum.bankingapp.model.Transaction;
 import com.tuum.bankingapp.repository.AccountRepository;
 import com.tuum.bankingapp.repository.BalanceRepository;
 import com.tuum.bankingapp.repository.TransactionRepository;
 import com.tuum.bankingapp.validation.TransactionValidation;
-import com.tuum.bankingapp.exception.InvalidTransactionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,41 +33,30 @@ public class TransactionService {
     @Autowired
     private TransactionValidation transactionValidation;
 
-    public Transaction createTransaction(String accountIdStr, String amountStr, String currency, String direction, String description) throws InvalidTransactionException {
+    public Transaction createTransaction(String accountIdStr, String amountStr, String currency, String direction, String description) {
         log.info("Creating transaction for account: {}, amount: {}, currency: {}, direction: {}, description: {}",
                 accountIdStr, amountStr, currency, direction, description);
-        Long accountId = Long.parseLong(accountIdStr);
-        BigDecimal amount = new BigDecimal(amountStr);
 
-        // Validate input parameters
-        if (!transactionValidation.isAccountIdValid(accountId) ||
-                !transactionValidation.isAmountValid(amount.doubleValue()) ||
-                !transactionValidation.isCurrencyValid(currency) ||
-                !transactionValidation.isTransactionTypeValid(direction) ||
-                !transactionValidation.isDescripitonValid(description)) {
-            log.error("Invalid transaction parameters");
-            throw new InvalidTransactionException("Invalid transaction parameters");
-        }
+        // Convert and validate input parameters
+        Long accountId = convertToLong(accountIdStr, "Account ID");
+        BigDecimal amount = convertToBigDecimal(amountStr, "Amount");
 
-        // Retrieve the current balance
+        validateCurrency(currency);
+        validateDirection(direction);
+        validateDescription(description);
+
+        // Retrieve and validate the current balance
         BigDecimal currentBalance = balanceRepository.findAvailableAmountByAccountIdAndCurrency(accountId, currency);
-        if (currentBalance == null) {
-            log.error("Account balance missing");
-            throw new AccountNotFoundException("Account balance missing");
-        }
+        validateCurrentBalance(currentBalance, accountId);
 
-        // Calculate the new balance based on the transaction direction
-        BigDecimal newBalance = "IN".equals(direction) ? currentBalance.add(amount) : currentBalance.subtract(amount);
-
-        // Check for sufficient funds in case of OUT direction
-        if ("OUT".equals(direction) && newBalance.compareTo(BigDecimal.ZERO) < 0) {
-            log.error("Insufficient funds for transaction");
-            throw new InsufficientFundsException("Insufficient funds for transaction");
-        }
+        // Calculate the new balance and validate sufficient funds
+        BigDecimal newBalance = calculateNewBalance(currentBalance, amount, direction);
+        validateSufficientFunds(newBalance, direction);
 
         // Update balance in the database
         balanceRepository.updateAvailableAmountByAccountIdAndCurrency(newBalance, accountId, currency);
 
+        // Create and save the transaction
         // Create and save the transaction
         Transaction transaction = new Transaction();
         transaction.setAccountId(accountId);
@@ -88,15 +73,69 @@ public class TransactionService {
         return transaction;
     }
 
-
     public List<Transaction> getTransactionsByAccountId(Long accountId) {
         log.info("Retrieving transactions for account: {}", accountId);
-        if (!transactionValidation.isAccountIdValid(accountId)) {
-            log.error("Invalid account ID");
-            throw new InvalidAccountException("Invalid account ID");
-        }
+        validateAccountId(accountId);
+        List<Transaction> transactions = transactionRepository.findTransactionsByAccountId(accountId);
         log.info("Transactions retrieved for account: {}", accountId);
-        return transactionRepository.findTransactionsByAccountId(accountId);
+        return transactions;
+    }
+
+    // Helper methods for validation and conversion
+    private Long convertToLong(String value, String fieldName) {
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            throw new InvalidParameterException(fieldName + " must be a valid number.");
+        }
+    }
+
+    private BigDecimal convertToBigDecimal(String value, String fieldName) {
+        try {
+            return new BigDecimal(value);
+        } catch (NumberFormatException e) {
+            throw new InvalidParameterException(fieldName + " must be a valid amount.");
+        }
+    }
+
+    private void validateCurrency(String currency) {
+        if (!transactionValidation.isCurrencyValid(currency)) {
+            throw new InvalidCurrencyException("Invalid currency: " + currency);
+        }
+    }
+
+    private void validateDirection(String direction) {
+        if (!transactionValidation.isTransactionTypeValid(direction)) {
+            throw new InvalidDirectionException("Invalid direction: " + direction);
+        }
+    }
+
+    private void validateDescription(String description) {
+        if (!transactionValidation.isDescripitonValid(description)) {
+            throw new InvalidDescriptionException("Description cannot be empty.");
+        }
+    }
+
+    private void validateCurrentBalance(BigDecimal currentBalance, Long accountId) {
+        if (currentBalance == null) {
+            throw new AccountNotFoundException("Account balance missing for account ID: " + accountId);
+        }
+    }
+
+    private BigDecimal calculateNewBalance(BigDecimal currentBalance, BigDecimal amount, String direction) {
+        return "IN".equals(direction) ? currentBalance.add(amount) : currentBalance.subtract(amount);
+    }
+
+    private void validateSufficientFunds(BigDecimal newBalance, String direction) {
+        if ("OUT".equals(direction) && newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientFundsException("Insufficient funds for transaction.");
+        }
+    }
+
+    private void validateAccountId(Long accountId) {
+        if (!transactionValidation.isAccountIdValid(accountId)) {
+            throw new InvalidAccountException("Invalid account ID: " + accountId);
+        }
     }
 }
 

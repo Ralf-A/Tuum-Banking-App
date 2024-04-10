@@ -22,10 +22,10 @@ public class TransactionController {
         try{
             Transaction createdTransaction = transactionService.createTransaction(request.getAccountId(), request.getAmount(), request.getCurrency(), request.getDirection(), request.getDescription());
             return ResponseEntity.ok(createdTransaction);
-        } catch (AccountNotFoundException | InvalidCurrencyException | InvalidAmountException | InvalidDescriptionException | InvalidDirectionException | InvalidTransactionException e) {
+        } catch (AccountNotFoundException | InvalidCurrencyException | InvalidAmountException | InvalidDescriptionException | InvalidDirectionException | InvalidTransactionException  e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("An unexpected error occurred");
+            return ResponseEntity.internalServerError().body("An unexpected error occurred");
         }
     }
 
@@ -36,6 +36,8 @@ public class TransactionController {
             return ResponseEntity.ok(transactions);
         } catch (AccountNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        } catch (Exception e) {
+        return ResponseEntity.internalServerError().body("An unexpected error occurred");
+    }
     }
 }
