@@ -63,17 +63,17 @@ public class AccountService {
     }
 
     @Transactional
-    public Account createAccount(Long customerId, String country, List<String> currencies) {
+    public Account createAccount(String customerId, String country, List<String> currencies) {
         // Create a new account object
+        validateAccount(customerId, country, currencies);
         Account account = new Account();
-        account.setCustomerId(customerId);
+        account.setCustomerId(Long.parseLong(customerId));
         account.setCountry(country);
-        account.setCurrencies(currencies); // Set the specified list of currencies
-        account.setBalances(new ArrayList<>()); // Initialize the balances list
+        account.setBalances(new ArrayList<>());
 
         // Validate account
         log.info("Creating account, validating account details for account");
-        validateAccount(account);
+
 
         // Insert account into the database
         accountRepository.insertAccount(account);
@@ -84,7 +84,6 @@ public class AccountService {
             Balance balance = new Balance(null, currency, BigDecimal.ZERO);
             balanceRepository.insertBalance(balance);
             Long balanceId = balance.getBalanceId(); // Ensure this is being retrieved after insertion
-
             accountBalanceRepository.insertAccountBalance(accountId, balanceId);
             account.getBalances().add(new Balance(balanceId, currency, BigDecimal.ZERO));
         }
@@ -97,25 +96,35 @@ public class AccountService {
 
 
 
-    private void validateAccount(Account account) {
+    private void validateAccount(String customerId, String country, List<String> currencies) {
         // Validate country
-        log.info("Validating account country: {}", account.getCountry());
-        if (!accountCreationValidation.isValidCountry(account.getCountry())) {
+        log.info("Validating account country: {}", country);
+        if (!accountCreationValidation.isValidCountry(country)) {
             throw new InvalidCountryException("Invalid country");
         }
+
         // Validate customer ID
-        log.info("Validating account customer ID: {}", account.getCustomerId());
-        if (!accountCreationValidation.isValidCustomerId(account.getCustomerId())) {
+        log.info("Validating account customer ID: {}", customerId);
+        Long customerIdLong;
+        try {
+            customerIdLong = Long.parseLong(customerId);
+        } catch (NumberFormatException e) {
+            throw new InvalidCustomerException("Invalid customer ID format");
+        }
+        if (!accountCreationValidation.isValidCustomerId(customerIdLong)) {
             throw new InvalidCustomerException("Invalid customer ID");
         }
+
         // Validate currencies
-        if (account.getCurrencies() == null || account.getCurrencies().isEmpty()) {
+        log.info("Validating account currencies: {}", currencies);
+        if (currencies == null || currencies.isEmpty()) {
             throw new InvalidCurrencyException("Currency list is empty or null");
         }
-        if (!accountCreationValidation.isValidCurrency(account.getCurrencies())) {
+        if (!accountCreationValidation.isValidCurrency(currencies)) {
             throw new InvalidCurrencyException("Invalid currency");
         }
     }
+
 
 }
 

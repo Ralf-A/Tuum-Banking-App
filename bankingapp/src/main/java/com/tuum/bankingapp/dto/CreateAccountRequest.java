@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateAccountRequest {
-    private Long customerId;
+    private String customerId;
     private String country;
     private List<String> currency;
 }

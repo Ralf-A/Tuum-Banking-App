@@ -15,7 +15,6 @@ public class Account {
     private Long customerId;
     private String country;
     private List<Balance> balances;
-    private List<String> currencies;
 }
 
 

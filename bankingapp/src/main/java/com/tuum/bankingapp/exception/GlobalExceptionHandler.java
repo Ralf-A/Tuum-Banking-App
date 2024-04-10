@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleAllOtherExceptions(Exception e) {
         String error = String.format("An unexpected error occurred: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
 }

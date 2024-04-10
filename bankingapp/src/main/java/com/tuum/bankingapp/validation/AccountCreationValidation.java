@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -48,10 +49,18 @@ public class AccountCreationValidation {
     }
 
 
-
     public boolean isValidCountry(String country) {
-        // You can enhance this by checking against a list of valid countries if needed
-        return country != null && !country.trim().isEmpty();
+        if (country == null || country.trim().isEmpty()) {
+            log.info("Country is null or empty: {}", country);
+            return false;
+        }
+        // Regular expression to match any digit
+        Pattern pattern = Pattern.compile(".*\\d.*");
+        if (pattern.matcher(country).find()) {
+            log.info("Country contains integers: {}", country);
+            return false;
+        }
+        return true;
     }
 }
 
