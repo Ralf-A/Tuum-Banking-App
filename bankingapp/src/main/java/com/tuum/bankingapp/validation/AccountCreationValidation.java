@@ -2,6 +2,8 @@ package com.tuum.bankingapp.validation;
 
 import com.tuum.bankingapp.model.Account;
 import com.tuum.bankingapp.repository.AccountRepository;
+import com.tuum.bankingapp.service.AccountService;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,26 +13,40 @@ import java.util.stream.Collectors;
 
 @Component
 public class AccountCreationValidation {
+    Logger log = org.slf4j.LoggerFactory.getLogger(AccountService.class);
     @Autowired
     private AccountRepository accountRepository;
 
     private static final List<String> ALLOWED_CURRENCIES = Arrays.asList("EUR", "SEK", "GBP", "USD");
 
     public boolean isValidCurrency(List<String> currencies) {
-        return currencies != null && !currencies.isEmpty() && currencies.stream()
-                .allMatch(currency -> ALLOWED_CURRENCIES.contains(currency));
-    }
-
-    public boolean isValidCustomerId(Long accountId) {
-        if (accountId == null || accountId <= 0) {
+        if (currencies == null || currencies.isEmpty()) {
+            log.info("Currency is null or empty: {}", currencies);
             return false;
         }
-        Account existingAccounts = accountRepository.findAccountById(accountId);
-        if (existingAccounts == null) {
+        List<String> invalidCurrencies = currencies.stream()
+                .filter(currency -> !ALLOWED_CURRENCIES.contains(currency))
+                .collect(Collectors.toList());
+        if (!invalidCurrencies.isEmpty()) {
+            log.info("Invalid currencies: {}", invalidCurrencies);
             return false;
         }
         return true;
     }
+
+    public boolean isValidCustomerId(Long customerId) {
+        if (customerId == null || customerId <= 0) {
+            log.info("Customer ID is null or invalid: {}", customerId);
+            return false;
+        }
+        List<Account> accounts = accountRepository.findAccountsByCustomerId(customerId);
+        if (!accounts.isEmpty()) {
+            log.info("Customer ID already exists: {}", customerId);
+            return false;
+        }
+        return true;
+    }
+
 
 
     public boolean isValidCountry(String country) {

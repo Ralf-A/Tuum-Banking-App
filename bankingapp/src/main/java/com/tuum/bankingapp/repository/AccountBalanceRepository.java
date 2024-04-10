@@ -9,8 +9,6 @@ import java.util.List;
 @Mapper
 @Repository
 public interface AccountBalanceRepository {
-
-
     // Method to find balance_ids by account_d
     @Select("SELECT balance_id FROM account_balances WHERE account_id = #{accountId}")
     List<Long> findBalanceIdsByAccountId(@Param("accountId") Long accountId);

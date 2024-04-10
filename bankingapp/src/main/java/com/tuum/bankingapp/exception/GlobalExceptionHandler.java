@@ -20,7 +20,6 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
-    // You can add more exception handlers here for different types of exceptions
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllOtherExceptions(Exception e) {

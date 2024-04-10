@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -65,27 +62,33 @@ public class AccountService {
                 .collect(Collectors.toList());
     }
 
-
-
     @Transactional
-    public Account createAccount(Account account) {
+    public Account createAccount(Long customerId, String country, List<String> currencies) {
+        // Create a new account object
+        Account account = new Account();
+        account.setCustomerId(customerId);
+        account.setCountry(country);
+        account.setCurrencies(currencies); // Set the specified list of currencies
+        account.setBalances(new ArrayList<>()); // Initialize the balances list
+
         // Validate account
         log.info("Creating account, validating account details for account");
         validateAccount(account);
 
         // Insert account into the database
         accountRepository.insertAccount(account);
-        Long accountId = account.getAccountId(); // Ensure this is being retrieved after insertion
+        Long accountId = account.getAccountId();
 
-        // Insert balances and link them to the account using the account_balances middle-table
-        for (Balance balance : account.getBalances()) {
-            // Insert balance into the database
+        // Initialize balances for the specified currencies and link them to the account
+        for (String currency : currencies) { // Use the specified list of currencies
+            Balance balance = new Balance(null, currency, BigDecimal.ZERO);
             balanceRepository.insertBalance(balance);
-            Long balanceId = balance.getBalanceId(); // Ensure this is retrieved after insertion
+            Long balanceId = balance.getBalanceId(); // Ensure this is being retrieved after insertion
 
-            // Insert record into the account_balances middle-table
             accountBalanceRepository.insertAccountBalance(accountId, balanceId);
+            account.getBalances().add(new Balance(balanceId, currency, BigDecimal.ZERO));
         }
+
         // Publish account creation event
         messagePublisher.publishAccountEvent(account);
         log.info("Account created successfully: {}", accountId);
@@ -93,21 +96,24 @@ public class AccountService {
     }
 
 
+
     private void validateAccount(Account account) {
         // Validate country
+        log.info("Validating account country: {}", account.getCountry());
         if (!accountCreationValidation.isValidCountry(account.getCountry())) {
-            throw new IllegalArgumentException("Invalid country");
+            throw new InvalidCountryException("Invalid country");
         }
         // Validate customer ID
+        log.info("Validating account customer ID: {}", account.getCustomerId());
         if (!accountCreationValidation.isValidCustomerId(account.getCustomerId())) {
-            throw new IllegalArgumentException("Invalid customer ID");
+            throw new InvalidCustomerException("Invalid customer ID");
         }
         // Validate currencies
-        List<String> currencies = account.getBalances().stream()
-                .map(Balance::getCurrency)
-                .collect(Collectors.toList());
-        if (!accountCreationValidation.isValidCurrency(currencies)) {
-            throw new IllegalArgumentException("Invalid currency");
+        if (account.getCurrencies() == null || account.getCurrencies().isEmpty()) {
+            throw new InvalidCurrencyException("Currency list is empty or null");
+        }
+        if (!accountCreationValidation.isValidCurrency(account.getCurrencies())) {
+            throw new InvalidCurrencyException("Invalid currency");
         }
     }
 
