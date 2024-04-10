@@ -11,13 +11,13 @@ import com.tuum.bankingapp.model.Transaction;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/api/v1/transactions")
 public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
 
-    @PostMapping("/transactions")
+    @PostMapping("/create")
     public ResponseEntity<?> createTransaction(@RequestBody CreateTransactionRequest request) {
         try{
             Transaction createdTransaction = transactionService.createTransaction(request.getAccountId(), request.getAmount(), request.getCurrency(), request.getDirection(), request.getDescription());
@@ -29,7 +29,7 @@ public class TransactionController {
         }
     }
 
-    @GetMapping("/transactions/{accountId}")
+    @GetMapping("/{accountId}")
     public ResponseEntity<?> getTransactions(@PathVariable Long accountId) {
         try{
             List<Transaction> transactions = transactionService.getTransactionsByAccountId(accountId);

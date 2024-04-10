@@ -3,6 +3,7 @@ import com.tuum.bankingapp.model.Balance;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper
@@ -18,6 +19,20 @@ public interface BalanceRepository {
     })
     Balance findBalanceById(@Param("balanceId") Long balanceId);
 
+    // Method to find available amount by account_id and currency
+    @Select("SELECT b.available_amount FROM balances b " +
+            "INNER JOIN account_balances ab ON b.balance_id = ab.balance_id " +
+            "WHERE ab.account_id = #{accountId} AND b.currency = #{currency}")
+    BigDecimal findAvailableAmountByAccountIdAndCurrency(@Param("accountId") Long accountId, @Param("currency") String currency);
+
+    // Method to update available amount by account_id and currency
+    @Update("UPDATE balances b SET available_amount = #{newBalance} " +
+            "FROM account_balances ab " +
+            "WHERE b.balance_id = ab.balance_id AND ab.account_id = #{accountId} AND b.currency = #{currency}")
+    void updateAvailableAmountByAccountIdAndCurrency(@Param("newBalance") BigDecimal newBalance,
+                                                     @Param("accountId") Long accountId,
+                                                     @Param("currency") String currency);
+
     // Method to find balances by account_id
     @Select("SELECT b.* FROM balances b INNER JOIN account_balances ab ON b.balance_id = ab.balance_id WHERE ab.account_id = #{accountId}")
     List<Balance> findBalancesByAccountId(@Param("accountId") Long accountId);
@@ -26,9 +41,5 @@ public interface BalanceRepository {
     @Insert("INSERT INTO balances (available_amount, currency) VALUES (#{availableAmount}, #{currency})")
     @Options(useGeneratedKeys = true, keyProperty = "balanceId")
     void insertBalance(Balance balance);
-
-    // Method to update a balance record
-    @Update("UPDATE balances SET available_amount = #{availableAmount} WHERE balance_id = #{balanceId}")
-    void updateBalance(Balance balance);
 }
 

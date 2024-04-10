@@ -15,7 +15,7 @@ import com.tuum.bankingapp.model.Account;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/transactions")
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
 
     @Autowired

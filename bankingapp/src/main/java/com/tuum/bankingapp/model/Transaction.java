@@ -1,13 +1,14 @@
 package com.tuum.bankingapp.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
 import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Transaction {
     private Long accountId;
     private Long transactionId;
