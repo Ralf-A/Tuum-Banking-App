@@ -89,7 +89,7 @@ public class TransactionService {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
             log.error("Account ID must be a valid number.");
-            throw new InvalidParameterException("Account ID" + " must be a valid number.");
+            throw new InvalidAccountException("Account ID" + " must be a valid number.");
         }
     }
 

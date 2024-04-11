@@ -94,8 +94,6 @@ public class AccountService {
         return account;
     }
 
-
-
     private void validateAccount(String customerId, String country, List<String> currencies) {
         // Validate country
         log.info("Validating account country: {}", country);
@@ -112,7 +110,7 @@ public class AccountService {
             throw new InvalidCustomerException("Invalid customer ID format");
         }
         if (!accountCreationValidation.isValidCustomerId(customerIdLong)) {
-            throw new InvalidCustomerException("Invalid customer ID");
+            throw new InvalidCustomerException("Invalid customer ID or already exists");
         }
 
         // Validate currencies

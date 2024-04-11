@@ -19,10 +19,18 @@ public class TransactionController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createTransaction(@RequestBody CreateTransactionRequest request) {
-        try{
-            Transaction createdTransaction = transactionService.createTransaction(request.getAccountId(), request.getAmount(), request.getCurrency(), request.getDirection(), request.getDescription());
+        try {
+            Transaction createdTransaction = transactionService.createTransaction(
+                    request.getAccountId(),
+                    request.getAmount(),
+                    request.getCurrency(),
+                    request.getDirection(),
+                    request.getDescription()
+            );
             return ResponseEntity.ok(createdTransaction);
-        } catch (AccountNotFoundException | InvalidCurrencyException | InvalidAmountException | InvalidDescriptionException | InvalidDirectionException | InvalidTransactionException  e) {
+        } catch (AccountNotFoundException | InvalidCurrencyException | InvalidAmountException |
+                 InvalidDescriptionException | InvalidDirectionException | InvalidTransactionException |
+                 InsufficientFundsException | InvalidAccountException | InvalidParameterException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("An unexpected error occurred");
