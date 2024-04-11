@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class AccountCreationValidation {
-    Logger log = org.slf4j.LoggerFactory.getLogger(AccountService.class);
+    Logger log = org.slf4j.LoggerFactory.getLogger(AccountCreationValidation.class);
     @Autowired
     private AccountRepository accountRepository;
 
@@ -51,13 +51,13 @@ public class AccountCreationValidation {
 
     public boolean isValidCountry(String country) {
         if (country == null || country.trim().isEmpty()) {
-            log.info("Country is null or empty: {}", country);
+            log.error("Country is null or empty: {}", country);
             return false;
         }
         // Regular expression to match any digit
         Pattern pattern = Pattern.compile(".*\\d.*");
         if (pattern.matcher(country).find()) {
-            log.info("Country contains integers: {}", country);
+            log.error("Country contains integers: {}", country);
             return false;
         }
         return true;
