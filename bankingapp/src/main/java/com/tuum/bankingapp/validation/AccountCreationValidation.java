@@ -20,20 +20,18 @@ public class AccountCreationValidation {
 
     private static final List<String> ALLOWED_CURRENCIES = Arrays.asList("EUR", "SEK", "GBP", "USD");
 
-    public boolean isValidCurrency(List<String> currencies) {
-        if (currencies == null || currencies.isEmpty()) {
-            log.error("Currency is null or empty: {}", currencies);
+    public boolean isValidCurrency(String currency) {
+        if (currency == null || currency.trim().isEmpty()) {
+            log.error("Currency is null or empty: {}", currency);
             return false;
         }
-        List<String> invalidCurrencies = currencies.stream()
-                .filter(currency -> !ALLOWED_CURRENCIES.contains(currency))
-                .collect(Collectors.toList());
-        if (!invalidCurrencies.isEmpty()) {
-            log.error("Invalid currencies: {}", invalidCurrencies);
+        if (!ALLOWED_CURRENCIES.contains(currency)) {
+            log.error("Invalid currency: {}", currency);
             return false;
         }
         return true;
     }
+
 
     public boolean isValidCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {

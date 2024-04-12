@@ -34,22 +34,21 @@ public class TransactionService {
     @Autowired
     private MessagePublisher messagePublisher;
 
-    public Transaction createTransaction(String accountIdStr, String amountStr, String currency, String direction, String description) {
+    public Transaction createTransaction(Long accountId, BigDecimal amount, String currency,
+                                         String direction, String description) {
+        // Log the creation attempt
         log.info("Creating transaction for account: {}, amount: {}, currency: {}, direction: {}, description: {}",
-                accountIdStr, amountStr, currency, direction, description);
+                accountId, amount, currency, direction, description);
 
-        // Convert and validate input parameters
-        Long accountId = convertToLong(accountIdStr);
-        BigDecimal amount = convertToBigDecimal(amountStr, "Amount");
-
+        // Validate input parameters
         validateCurrency(currency);
         validateDirection(direction);
         validateDescription(description);
         validateAmount(amount);
+
+        // Retrieve and validate the current balance
         BigDecimal currentBalance = balanceRepository.findAvailableAmountByAccountIdAndCurrency(accountId, currency);
         validateCurrentBalance(currentBalance, accountId);
-        log.info("Validated input parameters for account: {}, amount: {}, currency: {}, direction: {}, description: {}",
-                accountId, amount, currency, direction, description);
 
         // Calculate the new balance and validate sufficient funds
         BigDecimal newBalance = calculateNewBalance(currentBalance, amount, direction);
@@ -67,11 +66,12 @@ public class TransactionService {
         transaction.setDescription(description);
         transaction.setBalanceAfterTransaction(newBalance);
 
+        // Save the transaction and publish the event
         Long transactionId = transactionRepository.createTransaction(transaction);
         transaction.setTransactionId(transactionId);
-
         log.info("Transaction created: {}", transaction);
         messagePublisher.publishTransactionEvent(transaction);
+
         return transaction;
     }
 
@@ -81,25 +81,6 @@ public class TransactionService {
         List<Transaction> transactions = transactionRepository.findTransactionsByAccountId(accountId);
         log.info("Transactions retrieved for account: {}", accountId);
         return transactions;
-    }
-
-    // Helper methods for validation and conversion
-    private Long convertToLong(String value) {
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            log.error("Account ID must be a valid number.");
-            throw new InvalidAccountException("Account ID" + " must be a valid number.");
-        }
-    }
-
-
-    private BigDecimal convertToBigDecimal(String value, String fieldName) {
-        try {
-            return new BigDecimal(value);
-        } catch (NumberFormatException e) {
-            throw new InvalidParameterException(fieldName + " must be a valid amount.");
-        }
     }
 
     private void validateCurrency(String currency) {

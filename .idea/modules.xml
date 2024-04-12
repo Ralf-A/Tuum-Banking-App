@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Tuum-Banking-App.iml" filepath="$PROJECT_DIR$/.idea/Tuum-Banking-App.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bankingapp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/bankingapp.main.iml" />
     </modules>
   </component>
 </project>

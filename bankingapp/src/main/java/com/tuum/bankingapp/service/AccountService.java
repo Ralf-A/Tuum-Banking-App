@@ -6,7 +6,6 @@ import com.tuum.bankingapp.exception.InvalidCurrencyException;
 import com.tuum.bankingapp.exception.InvalidCustomerException;
 import com.tuum.bankingapp.messaging.MessagePublisher;
 import com.tuum.bankingapp.model.Account;
-import com.tuum.bankingapp.model.AccountBalance;
 import com.tuum.bankingapp.model.Balance;
 import com.tuum.bankingapp.repository.AccountBalanceRepository;
 import com.tuum.bankingapp.repository.AccountRepository;
@@ -41,8 +40,8 @@ public class AccountService {
     public Account getAccountById(Long accountId) {
         log.info("Finding account by ID: {}", accountId);
         Account account = accountRepository.findAccountById(accountId);
-        if (accountId == null || account == null) {
-            log.info("Account not found");
+        if (account == null) {
+            log.error("Account not found for ID: {}", accountId);
             throw new AccountNotFoundException("Account not found");
         }
         // Fetch balances for the account
@@ -51,7 +50,6 @@ public class AccountService {
         log.info("Account found: {}", account);
         return account;
     }
-
 
     private List<Balance> getBalancesForAccount(Long accountId) {
         log.info("Finding balances for account: {}", accountId);
@@ -63,66 +61,47 @@ public class AccountService {
     }
 
     @Transactional
-    public Account createAccount(String customerId, String country, List<String> currencies) {
-        // Create a new account object
+    public Account createAccount(Long customerId, String country, List<String> currencies) {
         validateAccount(customerId, country, currencies);
         Account account = new Account();
-        account.setCustomerId(Long.parseLong(customerId));
+        account.setCustomerId(customerId);
         account.setCountry(country);
         account.setBalances(new ArrayList<>());
 
-        // Validate account
-        log.info("Creating account, validating account details for account");
+        log.info("Creating account for customer ID: {}", customerId);
 
-
-        // Insert account into the database
         accountRepository.insertAccount(account);
         Long accountId = account.getAccountId();
 
-        // Initialize balances for the specified currencies and link them to the account
-        for (String currency : currencies) { // Use the specified list of currencies
+        for (String currency : currencies) {
             Balance balance = new Balance(null, currency, BigDecimal.ZERO);
             balanceRepository.insertBalance(balance);
-            Long balanceId = balance.getBalanceId(); // Ensure this is being retrieved after insertion
+            Long balanceId = balance.getBalanceId();
             accountBalanceRepository.insertAccountBalance(accountId, balanceId);
             account.getBalances().add(new Balance(balanceId, currency, BigDecimal.ZERO));
         }
 
-        // Publish account creation event
         messagePublisher.publishAccountEvent(account);
-        log.info("Account created successfully: {}", accountId);
+        log.info("Account created successfully: {}", account);
         return account;
     }
 
-    private void validateAccount(String customerId, String country, List<String> currencies) {
-        // Validate country
-        log.info("Validating account country: {}", country);
+    private void validateAccount(Long customerId, String country, List<String> currencies) {
+        log.info("Validating account for customer ID: {}", customerId);
         if (!accountCreationValidation.isValidCountry(country)) {
-            throw new InvalidCountryException("Invalid country");
+            throw new InvalidCountryException("Invalid country: " + country);
         }
 
-        // Validate customer ID
-        log.info("Validating account customer ID: {}", customerId);
-        Long customerIdLong;
-        try {
-            customerIdLong = Long.parseLong(customerId);
-        } catch (NumberFormatException e) {
-            throw new InvalidCustomerException("Invalid customer ID format");
-        }
-        if (!accountCreationValidation.isValidCustomerId(customerIdLong)) {
-            throw new InvalidCustomerException("Invalid customer ID or already exists");
+        if (!accountCreationValidation.isValidCustomerId(customerId)) {
+            throw new InvalidCustomerException("Invalid customer ID: " + customerId);
         }
 
-        // Validate currencies
-        log.info("Validating account currencies: {}", currencies);
-        if (currencies == null || currencies.isEmpty()) {
-            throw new InvalidCurrencyException("Currency list is empty or null");
-        }
-        if (!accountCreationValidation.isValidCurrency(currencies)) {
-            throw new InvalidCurrencyException("Invalid currency");
+        for (String currency : currencies) {
+            if (!accountCreationValidation.isValidCurrency(currency)) {
+                throw new InvalidCurrencyException("Invalid currency: " + currency);
+            }
         }
     }
-
-
 }
+
 

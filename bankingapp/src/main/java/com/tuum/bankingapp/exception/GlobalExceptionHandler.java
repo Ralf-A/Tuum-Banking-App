@@ -4,8 +4,13 @@ package com.tuum.bankingapp.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.NoHandlerFoundException;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -14,7 +19,31 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        String error = String.format("An unexpected error occurred: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
+        String error = String.format("Method argument type mismatch: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<String> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        String error = String.format("Missing servlet request parameter: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<String> handleNoHandlerFoundException(NoHandlerFoundException e) {
+        String error = String.format("No handler found: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(error);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException() {
+        String error = String.format("Incorrect usage! Please check the documentation at %s", DOC_URL);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
@@ -51,8 +80,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
-
-
+    
     @ExceptionHandler(InvalidCountryException.class)
     public ResponseEntity<String> handleInvalidCountryException(InvalidCountryException e) {
         String error = String.format("Invalid country: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
@@ -100,15 +128,13 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAllOtherExceptions(Exception e) {
-        String error = String.format("An unexpected error occurred: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
+    @ExceptionHandler(InvalidParameterException.class)
+    public ResponseEntity<String> handleInvalidParameterException(InvalidParameterException e) {
+        String error = String.format("Invalid parameter: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
-
 }
 
 

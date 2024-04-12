@@ -1,5 +1,6 @@
 package com.tuum.bankingapp.model;
 
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -14,4 +15,5 @@ public class Balance {
     private String currency;
     private BigDecimal availableAmount;
 }
+
 
