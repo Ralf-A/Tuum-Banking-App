@@ -22,10 +22,10 @@ Creates a new transaction for the specified account.
 
 #### Example
 
+### POST /api/accounts/12345/transactions
+- Content-Type: application/json
+  
 ```json
-POST /api/accounts/12345/transactions
-Content-Type: application/json
-
 {
   "amount": 1500.00,
   "currency": "USD",
@@ -47,9 +47,8 @@ Retrieves all transactions for the specified account.
 
 #### Example
 
-```json
-GET /api/accounts/12345/transactions/
-```
+### GET /api/accounts/12345/transactions/
+
 
 ### POST /api/accounts/create
 
@@ -65,10 +64,11 @@ Creates a new account based on the provided details.
 
 #### Example
 
-```json
-POST /api/accounts/create
-Content-Type: application/json
+### POST /api/accounts/create
 
+- Content-Type: application/json
+
+```json
 {
   "customerId": 12345,
   "country": "EST",
@@ -90,9 +90,7 @@ Retrieves the details of an account by its ID.
 
 #### Example
 
-```json
-GET /api/accounts/12345/
-```
+### GET /api/accounts/12345/
 
 ## Models
 
