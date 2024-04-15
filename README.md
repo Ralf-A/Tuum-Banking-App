@@ -4,9 +4,9 @@
 
 ## Endpoints
 
-### POST /api/accounts/{accountId}/transactions
+## POST /api/accounts/{accountId}/transactions
 
-Creates a new transaction for the specified account.
+- Creates a new transaction for the specified account.
 
 #### Parameters
 
@@ -23,6 +23,7 @@ Creates a new transaction for the specified account.
 #### Example
 
 ### POST /api/accounts/12345/transactions
+
 - Content-Type: application/json
   
 ```json
@@ -33,9 +34,9 @@ Creates a new transaction for the specified account.
   "description": "Payment for services"
 }
 ```
-### GET /api/accounts/{accountId}/transactions
+## GET /api/accounts/{accountId}/transactions
 
-Retrieves all transactions for the specified account.
+- Retrieves all transactions for the specified account.
 
 #### Parameters
 
@@ -50,7 +51,7 @@ Retrieves all transactions for the specified account.
 ### GET /api/accounts/12345/transactions/
 
 
-### POST /api/accounts/create
+## POST /api/accounts/create
 
 Creates a new account based on the provided details.
 
@@ -76,7 +77,7 @@ Creates a new account based on the provided details.
 }
 ```
 
-### GET /api/accounts/{accountId}
+## GET /api/accounts/{accountId}
 
 Retrieves the details of an account by its ID.
 
@@ -109,8 +110,6 @@ Retrieves the details of an account by its ID.
 - `customerId`: The ID of the customer associated with the account.
 - `country`: The country associated with the account.
 - `currency`: A list of currencies associated with the account and their corresponding balances.
-
-
 
 ## Error Handling
 
