@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS balances (
                                         balance_id SERIAL PRIMARY KEY,
                                         available_amount NUMERIC(19, 4) NOT NULL,
-                                        currency VARCHAR(3) NOT NULL CHECK (currency IN ('EUR', 'SEK', 'GBP', 'USD'))
+                                        currency VARCHAR(3) NOT NULL
 );
 
 -- Create schema for Account_Balances

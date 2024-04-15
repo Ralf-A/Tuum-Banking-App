@@ -63,63 +63,56 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InsufficientFundsException.class)
     public ResponseEntity<String> handleInsufficientFundsException(InsufficientFundsException e) {
-        String error = String.format("%s.", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(InvalidAccountException.class)
     public ResponseEntity<String> handleInvalidAccountException(InvalidAccountException e) {
-        String error = String.format("Invalid account: %s.", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(InvalidAmountException.class)
     public ResponseEntity<String> handleInvalidAmountException(InvalidAmountException e) {
-        String error = String.format("Invalid amount: %s.", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+                .body(e.getMessage());
     }
     
     @ExceptionHandler(InvalidCountryException.class)
     public ResponseEntity<String> handleInvalidCountryException(InvalidCountryException e) {
-        String error = String.format("Invalid country: %s.", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(InvalidCurrencyException.class)
     public ResponseEntity<String> handleInvalidCurrencyException(InvalidCurrencyException e) {
-        String error = String.format("%s", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(InvalidCustomerException.class)
     public ResponseEntity<String> handleInvalidCustomerException(InvalidCustomerException e) {
-        String error = String.format("Invalid customer ID: %s.", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(InvalidDescriptionException.class)
     public ResponseEntity<String> handleInvalidDescriptionException(InvalidDescriptionException e) {
-        String error = String.format("Invalid description: %s.", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(InvalidDirectionException.class)
     public ResponseEntity<String> handleInvalidDirectionException(InvalidDirectionException e) {
-        String error = String.format("Invalid direction: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
+        String error = String.format("%s. Please check the documentation at %s", e.getMessage(), DOC_URL);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
@@ -127,7 +120,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidTransactionException.class)
     public ResponseEntity<String> handleInvalidTransactionException(InvalidTransactionException e) {
-        String error = String.format("Invalid transaction: %s. Please check the documentation at %s", e.getMessage(), DOC_URL);
+        String error = String.format("%s. Please check the documentation at %s", e.getMessage(), DOC_URL);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
