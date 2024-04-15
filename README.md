@@ -1,8 +1,15 @@
 # Tuum Banking App
+
+# How to run
+-----
+# Explanation of my important choices 
+-----
+# Estimation of how many transactions application can handle on my machine
+-----
+# Scaling app horizontally
+ -----
  
 # API Documentation
-
-## Endpoints
 
 ## POST /api/accounts/{accountId}/transactions
 
