@@ -1,5 +1,8 @@
 package com.tuum.bankingapp.validation;
 
+import com.tuum.bankingapp.exception.InvalidCountryException;
+import com.tuum.bankingapp.exception.InvalidCurrencyException;
+import com.tuum.bankingapp.exception.InvalidCustomerException;
 import com.tuum.bankingapp.model.Account;
 import com.tuum.bankingapp.repository.AccountRepository;
 import org.slf4j.Logger;
@@ -25,59 +28,77 @@ public class AccountCreationValidation implements AccountValidation {
 
     @Value("#{'${allowed.currencies}'.split(',')}")
     private List<String> allowedCurrencies;
+    /**
+     * Validates account details, for country, customer ID and currencies validation
+     *
+     * @param customerId Customer ID
+     * @param country    Country
+     * @param currencies List of currencies
+     */
+    public void validateAccount(Long customerId, String country, List<String> currencies) {
+        log.info("Validating account for customer ID: {}", customerId);
+        isValidCountry(country);
+        isValidCustomerId(customerId);
+        for (String currency : currencies) {
+            isValidCurrency(currency);
+        }
+        log.info("Account validated successfully");
+    }
 
     /**
      * Validates the currency
+     *
      * @param currency Currency
-     * @return True if the currency is valid, meaning included in the allowed countries list, false otherwise
      */
-    public boolean isValidCurrency(String currency) {
+    public void isValidCurrency(String currency) {
         if (currency == null || currency.trim().isEmpty()) {
             log.error("Currency is null or empty: {}", currency);
-            return false;
+            throw new InvalidCurrencyException("Invalid currency: " + currency);
         }
         if (!allowedCurrencies.contains(currency)) {
-            log.error("Invalid currency: {}", currency);
-            return false;
+            log.error("Currency is not in the list of allowed currencies: {}", currency);
+            throw new InvalidCurrencyException("Currency is not in the list of allowed currencies: " + currency + ", allowed currencies: " + allowedCurrencies);
         }
-        return true;
     }
 
     /**
      * Validates the customer ID
+     *
      * @param customerId Customer ID
-     * @return True if the customer ID is valid, meaning not null and not already existing, false otherwise
      */
-    public boolean isValidCustomerId(Long customerId) {
+    public void isValidCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {
             log.error("Customer ID is null or invalid: {}", customerId);
-            return false;
+            throw new InvalidCustomerException("Invalid customer ID: " + customerId);
         }
         List<Account> accounts = accountRepository.findAccountsByCustomerId(customerId);
         if (!accounts.isEmpty()) {
             log.error("Customer ID already exists: {}", customerId);
-            return false;
+            throw new InvalidCustomerException("A customer already exists with customer ID of: " + customerId);
         }
-        return true;
+
     }
 
     /**
      * Validates the country
+     *
      * @param country Country
-     * @return True if the country is valid, meaning not null, not empty and not containing any digits, false otherwise
      */
-    public boolean isValidCountry(String country) {
+    public void isValidCountry(String country) {
         if (country == null || country.trim().isEmpty()) {
             log.error("Country is null or empty: {}", country);
-            return false;
+            throw new InvalidCountryException("Country is null or empty");
         }
         // Regular expression to match any digit
         Pattern pattern = Pattern.compile(".*\\d.*");
         if (pattern.matcher(country).find()) {
             log.error("Country contains integers: {}", country);
-            return false;
+            throw new InvalidCountryException("Country contains integers: " + country);
         }
-        return true;
+        if (country.length() > 3) {
+            log.error("Country code is longer than 3 characters: {}", country);
+            throw new InvalidCountryException("Country code is longer than 3 characters: " + country);
+        }
     }
 }
 

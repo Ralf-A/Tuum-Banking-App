@@ -35,7 +35,7 @@ public class TransactionController {
                                                             @Valid @RequestBody TransactionDTO request) {
         Transaction createdTransaction = transactionService.createTransaction(accountId, request.getAmount(),
                 request.getCurrency(), request.getDirection(), request.getDescription());
-        TransactionDTO transactionDTO = convertToDTO(createdTransaction);
+        TransactionDTO transactionDTO = convertToDTO(createdTransaction, accountId);
         return new ResponseEntity<>(transactionDTO, HttpStatus.CREATED);
     }
 
@@ -48,7 +48,7 @@ public class TransactionController {
     public ResponseEntity<List<TransactionDTO>> getTransactions(@PathVariable Long accountId) {
         List<Transaction> transactions = transactionService.getTransactionsByAccountId(accountId);
         List<TransactionDTO> transactionDTOs = transactions.stream()
-                .map(this::convertToDTO)
+                .map(transaction -> convertToDTO(transaction, accountId))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(transactionDTOs);
     }
@@ -58,9 +58,9 @@ public class TransactionController {
      * @param transaction the Transaction object to convert
      * @return the converted TransactionDTO object
      */
-    private TransactionDTO convertToDTO(Transaction transaction) {
+    private TransactionDTO convertToDTO(Transaction transaction,Long accountId) {
         TransactionDTO dto = new TransactionDTO();
-        dto.setAccountId(transaction.getAccountId());
+        dto.setAccountId(accountId);
         dto.setAmount(transaction.getAmount());
         dto.setCurrency(transaction.getCurrency());
         dto.setDirection(transaction.getDirection());

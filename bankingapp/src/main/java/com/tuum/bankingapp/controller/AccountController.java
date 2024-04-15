@@ -29,7 +29,6 @@ public class AccountController {
      */
     @PostMapping("/create")
     public ResponseEntity<Account> createAccount(@Valid @RequestBody AccountDTO request) {
-
         Account createdAccount = accountService.createAccount(request.getCustomerId(), request.getCountry(), request.getCurrency());
         return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
     }
@@ -41,9 +40,8 @@ public class AccountController {
      */
     @GetMapping("/{accountId}")
     public ResponseEntity<Account> getAccount(@PathVariable Long accountId) {
-
         Account account = accountService.getAccountById(accountId);
-        return new ResponseEntity<>(account, HttpStatus.CREATED);
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 }
 

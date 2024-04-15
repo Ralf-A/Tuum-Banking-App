@@ -1,6 +1,6 @@
 package com.tuum.bankingapp.service;
 
-import com.tuum.bankingapp.exception.*;
+import com.tuum.bankingapp.exception.InvalidTransactionException;
 import com.tuum.bankingapp.messaging.MessagePublisher;
 import com.tuum.bankingapp.model.Transaction;
 import com.tuum.bankingapp.repository.BalanceRepository;
@@ -48,107 +48,47 @@ public class TransactionService {
         log.info("Creating transaction for account: {}, amount: {}, currency: {}, direction: {}, description: {}",
                 accountId, amount, currency, direction, description);
 
-        // Validate input parameters
-        validateCurrency(currency);
-        validateDirection(direction);
-        validateDescription(description);
-        validateAmount(amount);
-
-        // Retrieve and validate the current balance
+        // Retrieve and validate current balance
         BigDecimal currentBalance = balanceRepository.findAvailableAmountByAccountIdAndCurrency(accountId, currency);
-        validateCurrentBalance(currentBalance, accountId);
+        transactionValidation.isValidCurrentBalance(currentBalance, accountId, currency);
 
-        // Calculate the new balance and validate sufficient funds
+        // Validate the transaction parameters
+        transactionValidation.validateTransaction(accountId, amount.doubleValue(), currency, direction, description);
+
+        // Calculate new balance after transaction
         BigDecimal newBalance = calculateNewBalance(currentBalance, amount, direction);
-        validateSufficientFunds(newBalance, direction);
 
-        // Update balance in the database
-        balanceRepository.updateAvailableAmountByAccountIdAndCurrency(newBalance, accountId, currency);
+        // Validate sufficient funds
+        transactionValidation.isValidSufficientFunds(newBalance, direction);
 
-        // Create and save the transaction
-        Transaction transaction = new Transaction();
-        transaction.setAccountId(accountId);
-        transaction.setAmount(amount);
-        transaction.setCurrency(currency);
-        transaction.setDirection(direction);
-        transaction.setDescription(description);
-        transaction.setBalanceAfterTransaction(newBalance);
+        try {
 
-        // Save the transaction and publish the event
-        Long transactionId = transactionRepository.createTransaction(transaction);
-        transaction.setTransactionId(transactionId);
-        log.info("Transaction created: {}", transaction);
-        messagePublisher.publishTransactionEvent(transaction);
+            // Update balance in the database
+            balanceRepository.updateAvailableAmountByAccountIdAndCurrency(newBalance, accountId, currency);
 
-        return transaction;
-    }
+            // Create and save the transaction
+            Transaction transaction = new Transaction();
+            transaction.setAccountId(accountId);
+            transaction.setAmount(amount);
+            transaction.setCurrency(currency);
+            transaction.setDirection(direction);
+            transaction.setDescription(description);
+            transaction.setBalanceAfterTransaction(newBalance);
 
-    /**
-     * Retrieves transactions for the given account
-     * @param accountId Account ID
-     * @return List of transactions
-     */
-    public List<Transaction> getTransactionsByAccountId(Long accountId) {
-        log.info("Retrieving transactions for account: {}", accountId);
-        validateAccountId(accountId);
-        List<Transaction> transactions = transactionRepository.findTransactionsByAccountId(accountId);
-        log.info("Transactions retrieved for account: {}", accountId);
-        return transactions;
-    }
+            // Save the transaction and publish the event
+            Long transactionId = transactionRepository.createTransaction(transaction);
+            transaction.setTransactionId(transactionId);
+            log.info("Transaction created: {}", transaction);
+            messagePublisher.publishTransactionEvent(transaction);
 
-    /**
-     * Validates the currency
-     * @param currency Currency
-     */
-    private void validateCurrency(String currency) {
-        if (!transactionValidation.isCurrencyValid(currency)) {
-            log.error("Invalid currency: {}", currency);
-            throw new InvalidCurrencyException("Invalid currency: " + currency);
+            return transaction;
+        } catch (Exception e) {
+            // Rollback transaction in case of error
+            log.error("Error creating transaction: {}", e.getMessage());
+            throw new InvalidTransactionException("Error creating transaction" + e.getMessage());
         }
     }
 
-    /** Validates the amount
-     * @param amount Transaction amount
-     */
-    private void validateAmount(BigDecimal amount) {
-        if (!transactionValidation.isAmountValid(amount.doubleValue())) {
-            log.error("Invalid amount: {}", amount);
-            throw new InvalidAmountException("Invalid amount: " + amount);
-        }
-    }
-
-    /**
-     * Validates the direction
-     * @param direction Transaction direction (IN/OUT)
-     */
-    private void validateDirection(String direction) {
-        if (!transactionValidation.isTransactionTypeValid(direction)) {
-            log.error("Invalid direction: {}", direction);
-            throw new InvalidDirectionException("Invalid direction: " + direction);
-        }
-    }
-
-    /**
-     * Validates the description
-     * @param description Transaction description
-     */
-    private void validateDescription(String description) {
-        if (!transactionValidation.isDescriptionValid(description)) {
-            log.error("Invalid description: {}", description);
-            throw new InvalidDescriptionException("Description cannot be empty.");
-        }
-    }
-
-    /** Validates the current balance
-     * @param currentBalance Current balance
-     * @param accountId Account ID
-     */
-    private void validateCurrentBalance(BigDecimal currentBalance, Long accountId) {
-        if (currentBalance == null) {
-            log.error("Account balance missing for account ID: {}", accountId);
-            throw new AccountNotFoundException("Account balance missing for account ID: " + accountId);
-        }
-    }
 
     /**
      * Calculates the new balance
@@ -163,26 +103,16 @@ public class TransactionService {
     }
 
     /**
-     * Validates the sufficient funds
-     * @param newBalance New balance
-     * @param direction Transaction direction (IN/OUT)
-     */
-    private void validateSufficientFunds(BigDecimal newBalance, String direction) {
-        if ("OUT".equals(direction) && newBalance.compareTo(BigDecimal.ZERO) < 0) {
-            log.error("Insufficient funds for transaction.");
-            throw new InsufficientFundsException("Insufficient funds for transaction.");
-        }
-    }
-
-    /**
-     * Validates the account ID
+     * Retrieves transactions for the given account
      * @param accountId Account ID
+     * @return List of transactions
      */
-    private void validateAccountId(Long accountId) {
-        if (!transactionValidation.isAccountIdValid(accountId)) {
-            log.error("Invalid account ID: {}", accountId);
-            throw new InvalidAccountException("Invalid account ID: " + accountId);
-        }
+    public List<Transaction> getTransactionsByAccountId(Long accountId) {
+        log.info("Retrieving transactions for account: {}", accountId);
+        transactionValidation.isAccountIdValid(accountId);
+        List<Transaction> transactions = transactionRepository.findTransactionsByAccountId(accountId);
+        log.info("Transactions retrieved for account: {}", accountId);
+        return transactions;
     }
 }
 

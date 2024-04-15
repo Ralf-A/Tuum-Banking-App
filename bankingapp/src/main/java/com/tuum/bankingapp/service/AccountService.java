@@ -1,9 +1,6 @@
 package com.tuum.bankingapp.service;
 
 import com.tuum.bankingapp.exception.AccountNotFoundException;
-import com.tuum.bankingapp.exception.InvalidCountryException;
-import com.tuum.bankingapp.exception.InvalidCurrencyException;
-import com.tuum.bankingapp.exception.InvalidCustomerException;
 import com.tuum.bankingapp.messaging.MessagePublisher;
 import com.tuum.bankingapp.model.Account;
 import com.tuum.bankingapp.model.Balance;
@@ -86,7 +83,7 @@ public class AccountService {
      */
     @Transactional
     public Account createAccount(Long customerId, String country, List<String> currencies) {
-        validateAccount(customerId, country, currencies);
+        accountValidation.validateAccount(customerId, country, currencies);
         Account account = new Account();
         account.setCustomerId(customerId);
         account.setCountry(country);
@@ -108,29 +105,6 @@ public class AccountService {
         messagePublisher.publishAccountEvent(account);
         log.info("Account created successfully: {}", account);
         return account;
-    }
-
-    /**
-     * Validates account details, for country, customer ID and currencies validation
-     * @param customerId Customer ID
-     * @param country Country
-     * @param currencies List of currencies
-     */
-    private void validateAccount(Long customerId, String country, List<String> currencies) {
-        log.info("Validating account for customer ID: {}", customerId);
-        if (!accountValidation.isValidCountry(country)) {
-            throw new InvalidCountryException("Invalid country: " + country);
-        }
-
-        if (!accountValidation.isValidCustomerId(customerId)) {
-            throw new InvalidCustomerException("Invalid customer ID: " + customerId);
-        }
-
-        for (String currency : currencies) {
-            if (!accountValidation.isValidCurrency(currency)) {
-                throw new InvalidCurrencyException("Invalid currency: " + currency);
-            }
-        }
     }
 }
 
