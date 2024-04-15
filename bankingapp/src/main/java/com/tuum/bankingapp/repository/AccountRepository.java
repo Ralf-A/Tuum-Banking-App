@@ -1,12 +1,14 @@
 package com.tuum.bankingapp.repository;
 
 import com.tuum.bankingapp.model.Account;
-import jdk.jfr.Registered;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
+/*
+ * Account objects interface that extends MyBatis Mapper interface.
+ * Contains methods to interact with the accounts table in the database.
+ */
 @Mapper
 @Repository
 public interface AccountRepository {
@@ -30,10 +32,5 @@ public interface AccountRepository {
     @Insert("INSERT INTO accounts (customer_id, country) VALUES (#{customerId}, #{country})")
     @Options(useGeneratedKeys = true, keyProperty = "accountId")
     void insertAccount(Account account);
-
-    // Method to get distinct currencies from accounts
-    @Select("SELECT DISTINCT currency FROM balances")
-    List<String> getCurrencies();
-
 }
 

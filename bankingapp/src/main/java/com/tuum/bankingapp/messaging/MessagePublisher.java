@@ -8,7 +8,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+/**
+ * Responsible for publishing messages to the RabbitMQ message broker.
+ */
 @Service
 public class MessagePublisher {
     Logger log = org.slf4j.LoggerFactory.getLogger(MessagePublisher.class);
@@ -20,6 +22,7 @@ public class MessagePublisher {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    // Publishes an account creation event to the RabbitMQ message broker.
     public void publishAccountEvent(Account event) {
         try {
             rabbitTemplate.convertAndSend("bankingExchange", "account.created", event);
@@ -29,7 +32,7 @@ public class MessagePublisher {
         }
     }
 
-
+    // Publishes a transaction creation event to the RabbitMQ message broker.
     public void publishTransactionEvent(Transaction event) {
         try{
             rabbitTemplate.convertAndSend("bankingExchange", "transaction.created", event);

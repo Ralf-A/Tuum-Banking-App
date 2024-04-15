@@ -2,37 +2,52 @@ package com.tuum.bankingapp.validation;
 
 import com.tuum.bankingapp.model.Account;
 import com.tuum.bankingapp.repository.AccountRepository;
-import com.tuum.bankingapp.service.AccountService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+/**
+ * Class for validating account creation related input parameters
+ */
 @Component
-public class AccountCreationValidation {
+public class AccountCreationValidation implements AccountValidation {
     Logger log = org.slf4j.LoggerFactory.getLogger(AccountCreationValidation.class);
+
+    // Constructor and autowiring the dependencies
+    private final AccountRepository accountRepository;
     @Autowired
-    private AccountRepository accountRepository;
+    public AccountCreationValidation(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
-    private static final List<String> ALLOWED_CURRENCIES = Arrays.asList("EUR", "SEK", "GBP", "USD");
+    @Value("#{'${allowed.currencies}'.split(',')}")
+    private List<String> allowedCurrencies;
 
+    /**
+     * Validates the currency
+     * @param currency Currency
+     * @return True if the currency is valid, meaning included in the allowed countries list, false otherwise
+     */
     public boolean isValidCurrency(String currency) {
         if (currency == null || currency.trim().isEmpty()) {
             log.error("Currency is null or empty: {}", currency);
             return false;
         }
-        if (!ALLOWED_CURRENCIES.contains(currency)) {
+        if (!allowedCurrencies.contains(currency)) {
             log.error("Invalid currency: {}", currency);
             return false;
         }
         return true;
     }
 
-
+    /**
+     * Validates the customer ID
+     * @param customerId Customer ID
+     * @return True if the customer ID is valid, meaning not null and not already existing, false otherwise
+     */
     public boolean isValidCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {
             log.error("Customer ID is null or invalid: {}", customerId);
@@ -46,7 +61,11 @@ public class AccountCreationValidation {
         return true;
     }
 
-
+    /**
+     * Validates the country
+     * @param country Country
+     * @return True if the country is valid, meaning not null, not empty and not containing any digits, false otherwise
+     */
     public boolean isValidCountry(String country) {
         if (country == null || country.trim().isEmpty()) {
             log.error("Country is null or empty: {}", country);

@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Model to represent the relationship between an account and a balance - an account can have multiple balances.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

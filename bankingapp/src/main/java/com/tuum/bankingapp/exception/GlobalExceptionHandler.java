@@ -9,11 +9,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * Exception class for handling all exceptions in the application.
+     * The class provides a method for handling all exceptions and returning a response entity with a message.
+     */
 
     private static final String DOC_URL = "https://github.com/Ralf-A/Tuum-Banking-App/blob/main/README.md";
 

@@ -1,11 +1,15 @@
 package com.tuum.bankingapp.repository;
+
 import com.tuum.bankingapp.model.Balance;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
-
 import java.math.BigDecimal;
 import java.util.List;
 
+/*
+ * Balance objects interface that extends MyBatis Mapper interface.
+ * Contains methods to interact with the balances table in the database.
+ */
 @Mapper
 @Repository
 public interface BalanceRepository {
@@ -33,7 +37,7 @@ public interface BalanceRepository {
                                                      @Param("accountId") Long accountId,
                                                      @Param("currency") String currency);
 
-    // Method to find balances by account_id
+    // Method to find balances by account_id, used by AccountRepository
     @Select("SELECT b.* FROM balances b INNER JOIN account_balances ab ON b.balance_id = ab.balance_id WHERE ab.account_id = #{accountId}")
     List<Balance> findBalancesByAccountId(@Param("accountId") Long accountId);
 

@@ -10,33 +10,45 @@ import com.tuum.bankingapp.model.Balance;
 import com.tuum.bankingapp.repository.AccountBalanceRepository;
 import com.tuum.bankingapp.repository.AccountRepository;
 import com.tuum.bankingapp.repository.BalanceRepository;
-import com.tuum.bankingapp.validation.AccountCreationValidation;
+import com.tuum.bankingapp.validation.AccountValidation;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-
+/**
+ * Service class for handling account related operations
+ */
 @Service
 public class AccountService {
     Logger log = org.slf4j.LoggerFactory.getLogger(AccountService.class);
 
+    // Constructor and autowiring the dependencies
+    private final MessagePublisher messagePublisher;
+    private final BalanceRepository balanceRepository;
+    private final AccountValidation accountValidation;
+    private final AccountRepository accountRepository;
+    private final AccountBalanceRepository accountBalanceRepository;
     @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private BalanceRepository balanceRepository;
-    @Autowired
-    private AccountBalanceRepository accountBalanceRepository;
-    @Autowired
-    private MessagePublisher messagePublisher;
-    @Autowired
-    private AccountCreationValidation accountCreationValidation;
+    public AccountService(MessagePublisher messagePublisher, BalanceRepository balanceRepository,
+                          AccountValidation accountValidation, AccountRepository accountRepository,
+                          AccountBalanceRepository accountBalanceRepository) {
+        this.messagePublisher = messagePublisher;
+        this.balanceRepository = balanceRepository;
+        this.accountValidation = accountValidation;
+        this.accountRepository = accountRepository;
+        this.accountBalanceRepository = accountBalanceRepository;
+    }
 
+    /**
+     * Fetches account details by account ID
+     * @param accountId Account ID
+     * @return Account details
+     */
     public Account getAccountById(Long accountId) {
         log.info("Finding account by ID: {}", accountId);
         Account account = accountRepository.findAccountById(accountId);
@@ -51,6 +63,11 @@ public class AccountService {
         return account;
     }
 
+    /**
+     * Fetches balances for account by account ID
+     * @param accountId Account ID
+     * @return List of balances
+     */
     private List<Balance> getBalancesForAccount(Long accountId) {
         log.info("Finding balances for account: {}", accountId);
         List<Long> balanceIds = accountBalanceRepository.findBalanceIdsByAccountId(accountId);
@@ -60,6 +77,13 @@ public class AccountService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Creates an account for a customer
+     * @param customerId Customer ID
+     * @param country Country
+     * @param currencies List of currencies
+     * @return Created account
+     */
     @Transactional
     public Account createAccount(Long customerId, String country, List<String> currencies) {
         validateAccount(customerId, country, currencies);
@@ -72,7 +96,7 @@ public class AccountService {
 
         accountRepository.insertAccount(account);
         Long accountId = account.getAccountId();
-
+        // Create balances for the account, initializes them with zero balance
         for (String currency : currencies) {
             Balance balance = new Balance(null, currency, BigDecimal.ZERO);
             balanceRepository.insertBalance(balance);
@@ -86,18 +110,24 @@ public class AccountService {
         return account;
     }
 
+    /**
+     * Validates account details, for country, customer ID and currencies validation
+     * @param customerId Customer ID
+     * @param country Country
+     * @param currencies List of currencies
+     */
     private void validateAccount(Long customerId, String country, List<String> currencies) {
         log.info("Validating account for customer ID: {}", customerId);
-        if (!accountCreationValidation.isValidCountry(country)) {
+        if (!accountValidation.isValidCountry(country)) {
             throw new InvalidCountryException("Invalid country: " + country);
         }
 
-        if (!accountCreationValidation.isValidCustomerId(customerId)) {
+        if (!accountValidation.isValidCustomerId(customerId)) {
             throw new InvalidCustomerException("Invalid customer ID: " + customerId);
         }
 
         for (String currency : currencies) {
-            if (!accountCreationValidation.isValidCurrency(currency)) {
+            if (!accountValidation.isValidCurrency(currency)) {
                 throw new InvalidCurrencyException("Invalid currency: " + currency);
             }
         }

@@ -9,9 +9,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionDTO {
+    /**
+     * Transaction Data Transfer Object for a POST request to create a transaction
+     */
     private Long accountId;
     private BigDecimal amount;
     private String currency;
     private String direction;
-    private String Description;
+    private String description;
 }

@@ -4,6 +4,9 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
+/*
+* Transaction Model
+*/
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

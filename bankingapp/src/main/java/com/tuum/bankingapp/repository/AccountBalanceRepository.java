@@ -1,15 +1,18 @@
 package com.tuum.bankingapp.repository;
 
-import com.tuum.bankingapp.model.AccountBalance;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/*
+ * AccountBalance objects interface that extends MyBatis Mapper interface.
+ * Contains methods to interact with the account_balances table in the database.
+ */
 @Mapper
 @Repository
 public interface AccountBalanceRepository {
-    // Method to find balance_ids by account_d
+    // Method to find balance_ids by account_id
     @Select("SELECT balance_id FROM account_balances WHERE account_id = #{accountId}")
     List<Long> findBalanceIdsByAccountId(@Param("accountId") Long accountId);
 

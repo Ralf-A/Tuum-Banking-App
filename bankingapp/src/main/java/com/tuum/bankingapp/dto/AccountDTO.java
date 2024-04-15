@@ -12,6 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountDTO {
+    /**
+     * Account Data Transfer Object for a POST request to create an account
+     */
     private Long customerId;
     private String country;
     private List<String> currency;

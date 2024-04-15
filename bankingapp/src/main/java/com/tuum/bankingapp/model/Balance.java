@@ -5,6 +5,9 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
+/*
+* Balance Model
+*/
 @Data
 @NoArgsConstructor
 @Getter

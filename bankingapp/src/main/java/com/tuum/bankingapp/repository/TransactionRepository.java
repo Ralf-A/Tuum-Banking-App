@@ -6,6 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/*
+ * Transaction objects interface that extends MyBatis Mapper interface.
+ * Contains methods to interact with the transactions table in the database.
+ */
 @Mapper
 @Repository
 public interface TransactionRepository {
