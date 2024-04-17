@@ -49,7 +49,7 @@ public class AccountService {
     public Account getAccountById(Long accountId) {
         log.info("Finding account by ID: {}", accountId);
         Account account = accountRepository.findAccountById(accountId);
-        if (account == null) {
+        if (account == null || accountId == null || accountId < 0) {
             log.error("Account not found for ID: {}", accountId);
             throw new AccountNotFoundException("Account not found");
         }
@@ -65,8 +65,12 @@ public class AccountService {
      * @param accountId Account ID
      * @return List of balances
      */
-    private List<Balance> getBalancesForAccount(Long accountId) {
+    public List<Balance> getBalancesForAccount(Long accountId) {
         log.info("Finding balances for account: {}", accountId);
+        if (accountId == null || accountId < 0) {
+            log.error("Invalid account ID: {}", accountId);
+            throw new AccountNotFoundException("Invalid account ID");
+        }
         List<Long> balanceIds = accountBalanceRepository.findBalanceIdsByAccountId(accountId);
         log.info("Found balance IDs: {}", balanceIds);
         return balanceIds.stream()
