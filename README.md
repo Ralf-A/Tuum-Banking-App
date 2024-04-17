@@ -1,12 +1,19 @@
 # Tuum Banking App
+
+# How to run
+-----
+# Explanation of my important choices 
+-----
+# Estimation of how many transactions application can handle on my machine
+-----
+# Scaling app horizontally
+ -----
  
 # API Documentation
 
-## Endpoints
+## POST /api/accounts/{accountId}/transactions
 
-### POST /api/accounts/{accountId}/transactions
-
-Creates a new transaction for the specified account.
+- Creates a new transaction for the specified account.
 
 #### Parameters
 
@@ -22,10 +29,11 @@ Creates a new transaction for the specified account.
 
 #### Example
 
-```json
-POST /api/accounts/12345/transactions
-Content-Type: application/json
+### POST /api/accounts/12345/transactions
 
+- Content-Type: application/json
+  
+```json
 {
   "amount": 1500.00,
   "currency": "USD",
@@ -33,9 +41,9 @@ Content-Type: application/json
   "description": "Payment for services"
 }
 ```
-### GET /api/accounts/{accountId}/transactions
+## GET /api/accounts/{accountId}/transactions
 
-Retrieves all transactions for the specified account.
+- Retrieves all transactions for the specified account.
 
 #### Parameters
 
@@ -47,11 +55,10 @@ Retrieves all transactions for the specified account.
 
 #### Example
 
-```json
-GET /api/accounts/12345/transactions/
-```
+### GET /api/accounts/12345/transactions/
 
-### POST /api/accounts/create
+
+## POST /api/accounts/create
 
 Creates a new account based on the provided details.
 
@@ -65,10 +72,11 @@ Creates a new account based on the provided details.
 
 #### Example
 
-```json
-POST /api/accounts/create
-Content-Type: application/json
+### POST /api/accounts/create
 
+- Content-Type: application/json
+
+```json
 {
   "customerId": 12345,
   "country": "EST",
@@ -76,7 +84,7 @@ Content-Type: application/json
 }
 ```
 
-### GET /api/accounts/{accountId}
+## GET /api/accounts/{accountId}
 
 Retrieves the details of an account by its ID.
 
@@ -90,9 +98,7 @@ Retrieves the details of an account by its ID.
 
 #### Example
 
-```json
-GET /api/accounts/12345/
-```
+### GET /api/accounts/12345/
 
 ## Models
 
@@ -111,8 +117,6 @@ GET /api/accounts/12345/
 - `customerId`: The ID of the customer associated with the account.
 - `country`: The country associated with the account.
 - `currency`: A list of currencies associated with the account and their corresponding balances.
-
-
 
 ## Error Handling
 
