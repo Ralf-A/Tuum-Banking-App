@@ -62,7 +62,6 @@ public class TransactionService {
         transactionValidation.isValidSufficientFunds(newBalance, direction);
 
         try {
-
             // Update balance in the database
             balanceRepository.updateAvailableAmountByAccountIdAndCurrency(newBalance, accountId, currency);
 

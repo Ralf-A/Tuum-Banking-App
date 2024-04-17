@@ -42,9 +42,9 @@ public class AccountService {
     }
 
     /**
-     * Fetches account details by account ID
+     * Fetches account by account ID
      * @param accountId Account ID
-     * @return Account details
+     * @return Account object
      */
     public Account getAccountById(Long accountId) {
         log.info("Finding account by ID: {}", accountId);
@@ -65,7 +65,7 @@ public class AccountService {
      * @param accountId Account ID
      * @return List of balances
      */
-    public List<Balance> getBalancesForAccount(Long accountId) {
+    private List<Balance> getBalancesForAccount(Long accountId) {
         log.info("Finding balances for account: {}", accountId);
         if (accountId == null || accountId < 0) {
             log.error("Invalid account ID: {}", accountId);
@@ -83,7 +83,7 @@ public class AccountService {
      * @param customerId Customer ID
      * @param country Country
      * @param currencies List of currencies
-     * @return Created account
+     * @return Created account object
      */
     @Transactional
     public Account createAccount(Long customerId, String country, List<String> currencies) {

@@ -31,6 +31,6 @@ public interface AccountRepository {
     // Method to insert account by customer_id, country
     @Insert("INSERT INTO accounts (customer_id, country) VALUES (#{customerId}, #{country})")
     @Options(useGeneratedKeys = true, keyProperty = "accountId")
-    Account insertAccount(Account account);
+    void insertAccount(Account account);
 }
 

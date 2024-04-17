@@ -26,11 +26,12 @@ public class AccountCreationValidation implements AccountValidation {
         this.accountRepository = accountRepository;
     }
 
+    // Allowed currencies list from application.properties
     @Value("#{'${allowed.currencies}'.split(',')}")
     private List<String> allowedCurrencies;
+
     /**
      * Validates account details, for country, customer ID and currencies validation
-     *
      * @param customerId Customer ID
      * @param country    Country
      * @param currencies List of currencies
@@ -46,8 +47,7 @@ public class AccountCreationValidation implements AccountValidation {
     }
 
     /**
-     * Validates the currency
-     *
+     * Validates the currency from list of allowed currencies
      * @param currency Currency
      */
     public void isValidCurrency(String currency) {
@@ -62,8 +62,7 @@ public class AccountCreationValidation implements AccountValidation {
     }
 
     /**
-     * Validates the customer ID
-     *
+     * Validates the customer ID and checks if it already exists
      * @param customerId Customer ID
      */
     public void isValidCustomerId(Long customerId) {
@@ -76,12 +75,10 @@ public class AccountCreationValidation implements AccountValidation {
             log.error("Customer ID already exists: {}", customerId);
             throw new InvalidCustomerException("A customer already exists with customer ID of: " + customerId);
         }
-
     }
 
     /**
-     * Validates the country
-     *
+     * Validates the country so that it is not null, empty, doesn't contain integers or not longer than 3 characters
      * @param country Country
      */
     public void isValidCountry(String country) {

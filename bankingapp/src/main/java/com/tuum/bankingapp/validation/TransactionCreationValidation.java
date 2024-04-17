@@ -22,6 +22,7 @@ public class TransactionCreationValidation implements TransactionValidation{
     public TransactionCreationValidation(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
+
     // Validation transaction details from DTO input
     @Override
     public void validateTransaction(Long accountId, Double amount, String currency, String transactionType, String description) {
@@ -32,6 +33,7 @@ public class TransactionCreationValidation implements TransactionValidation{
         isCurrencyValid(currency);
         isTransactionTypeValid(transactionType);
         isDescriptionValid(description);
+        log.info("Transaction details are valid.");
     }
 
     /** Validates the current balance
