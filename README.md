@@ -30,8 +30,16 @@
 
 
 # Estimation of how many transactions application can handle on my machine
+- Using transaction per second/accounts created per second as a scale
+- 
 -----
-# Scaling app horizontally
+# Scaling horizontally up a banking application such as this one:
+- Ensuring that application/servers can handle any request at any time
+- Avoiding local storage and using backups
+- Load balancing to distribute incoming API requests evenly
+- Breaking down application to smaller pieces, using distributed systems to run a part of a program each on a different machine
+- More monitoring and testing
+- Otherwise application structure is quite expandable and current packages can be used quite easily to scale the application
  -----
  
 # API Documentation
