@@ -30,8 +30,8 @@
 
 
 # Estimation of how many transactions application can handle on my machine
-- Using transaction per second/accounts created per second as a scale
-- 
+- Using transaction per second as a scale
+- Using Gatling 
 -----
 # Scaling horizontally up a banking application such as this one:
 - Ensuring that application/servers can handle any request at any time
