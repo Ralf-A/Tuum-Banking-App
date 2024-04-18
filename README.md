@@ -17,13 +17,13 @@
 - Accounts: account_id; customer_id; country(Country code, 3 letter, e.g 'EST')
 - Account_balances: account_balance_id; account_id; balance_id
 - Balances: balance_id; available_amount; currency(Currency code, 3 letter, e.g 'EUR')
-Also a table for transactions
-Reasoning behind this was to make application more expandable, this way more easier to keep track of balances in case a user deciedes to create an account with a very high amount of different currencies.
+- Also a table for transactions
+- Reasoning behind this was to make application more expandable, this way more easier to keep track of balances in case a user deciedes to create an account with a very high amount of different currencies.
 
 ## Creating separate service classes for Account-related and Transaction-related actions:
-AccountService deals with creating an account and finding an account by its ID, also calls out validation from validation class.
-TransactionService deals with creating a new transaction, updating account's balance and getting transactions for an account.
-Reasoning behind this decision was to keep account and transaction rules separate and make use of abstraction to make code more readable and easily expandable, e.g create new methods for various new account actions or so on.
+- AccountService deals with creating an account and finding an account by its ID, also calls out validation from validation class.
+- TransactionService deals with creating a new transaction, updating account's balance and getting transactions for an account.
+- Reasoning behind this decision was to keep account and transaction rules separate and make use of abstraction to make code more readable and easily expandable, e.g create new methods for various new account actions or so on.
 
 
 # Estimation of how many transactions application can handle on my machine
