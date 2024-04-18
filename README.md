@@ -30,7 +30,7 @@
 -----
 
 # Estimation of how many transactions application can handle on my machine
-- Using transaction per second as a scale
+- Using transactions per second as a scale
 - Using Postman - with 100 virtual users, running for 1 minute for a total of 5000 requests (75 tps) and an average response time of 16ms.
 - Using account and transaction creation endpoints with random integers as ID's.
 -----
