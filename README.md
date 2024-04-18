@@ -3,7 +3,7 @@
 
 - App to **create** and **view accounts**, **create transactions** for an account for their corresponding currencies, **view transactions** filtered by account ID.
 - Includes Account and Transaction services for these purposes.
-- RabbitMQ console running on port 15672 to listen to account and transaction creation messages.
+- RabbitMQ console to listen to account and transaction creation messages.
 - Includes integration tests for both services, with 100% method coverage, line coverage ~95%. 
 -----
 
