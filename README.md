@@ -3,6 +3,7 @@
 
 - App to **create** and **view accounts**, **create transactions** for an account for their corresponding currencies, **view transactions** filtered by account ID.
 - Includes Account and Transaction services for these purposes.
+- RabbitMQ console running on port 15672 to listen to account and transaction creation messages.
 - Includes integration tests for both services, with 100% method coverage, line coverage ~95%. 
 -----
 
@@ -28,11 +29,12 @@
 - Reasoning behind this decision was to keep account and transaction rules separate and make use of abstraction to make code more readable and easily expandable, e.g create new methods for various new account actions or so on.
 -----
 
-
 # Estimation of how many transactions application can handle on my machine
 - Using transaction per second as a scale
-- Using Gatling 
+- Using Postman - with 100 virtual users, running for 1 minute for a total of 5000 requests (75 tps) and an average response time of 16ms.
+- Using account and transaction creation endpoints with random integers as ID's.
 -----
+
 # Scaling horizontally up a banking application such as this one:
 - Ensuring that application/servers can handle any request at any time
 - Avoiding local storage and using backups
@@ -40,6 +42,7 @@
 - Breaking down application to smaller pieces, using distributed systems to run a part of a program each on a different machine
 - More monitoring and testing
 - Otherwise application structure is quite expandable and current packages can be used quite easily to scale the application
+- Some little changes such as using UUID and creating more queries to repositories could also be useful for expansion.
  -----
  
 # API Documentation
