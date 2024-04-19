@@ -9,7 +9,7 @@
 
 
 # How to run
-- **Step 1**: `Run compose.yml`
+- **Step 1**: `Run compose.yml` or use `docker-compose build` and then `docker-compose up`
 - **Step 2**: Open the application in Docker to see everything working in harmony.
 - **Step 3**: By default, app is running on 8080, RabbitMQ Console on 15672, DB on 5432.
 -----
